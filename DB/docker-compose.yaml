@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:latest
+    volumes:
+      - db_data:/data/pgdata
+      - ./init:/docker-entrypoint-initdb.d/
+    restart: always
+    environment:
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=testpassword
+      - PGDATA=/data/pgdata
+    expose:
+      - 5432
+    ports:
+      - 5432:5432        
+  adminer:
+    image: adminer
+    restart: always
+    ports: 
+    - 8080:8080
+  webapp:
+    image: webapp
+    ports:
+    - 8081:80
+volumes:
+  db_data:
