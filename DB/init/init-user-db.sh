@@ -8,12 +8,9 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 EOSQL
 
 psql -v ON_ERROR_STOP=1 --username "dockeruser" --dbname "dockerdb" <<-EOSQL
-
 DROP TABLE IF EXISTS "ListEntry";
 DROP SEQUENCE IF EXISTS "ListEntry_ID_seq";
-
 CREATE SEQUENCE "ListEntry_ID_seq";
-
 CREATE TABLE "public"."ListEntry" (
     "ID" integer DEFAULT nextval('"ListEntry_ID_seq"') NOT NULL,
     "Title" text NOT NULL,
