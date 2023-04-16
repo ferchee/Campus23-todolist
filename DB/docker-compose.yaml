@@ -1,13 +1,13 @@
 services:
   db:
-    image: postgres:latest
+    image: postgres:14.7
     volumes:
       - db_data:/data/pgdata
       - ./init:/docker-entrypoint-initdb.d/
     restart: always
     environment:
-      - POSTGRES_USER=dbuser
-      - POSTGRES_PASSWORD=testpassword
+      - POSTGRES_USER=dockeruser1
+      - POSTGRES_PASSWORD=dockerpassword1
       - PGDATA=/data/pgdata
     expose:
       - 5432
@@ -20,6 +20,8 @@ services:
     - 8080:8080
   webapp:
     image: webapp
+    environment:
+       - ASPNETCORE_ENVIRONMENT=Development
     ports:
     - 8081:80
 volumes:
