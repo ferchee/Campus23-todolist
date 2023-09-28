@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: testapp
+  name: testapp
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 0
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: testapp
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: testapp
+        deploymentconfig: testapp
+    spec:
+      containers:
+      - env:
+        - name: CUSTOMURL
+          valueFrom:
+            configMapKeyRef:
+              key: CUSTOMURL
+              name: testappsettings
+{{ if .Values.Openshift.enabled }}               
+        image: {{ .Values.image.testapp_openshift_source }}
+{{ else }}        
+        image: {{ .Values.image.testapp_repository }}
+{{ end }}        
+        imagePullPolicy: IfNotPresent
+        name: testapp
+        ports:
+        - containerPort: 5100
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 50m
+            memory: 500Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+{{ if .Values.Openshift.enabled }}   
+        volumeMounts:
+        - mountPath: /etc/crt
+          name: tlssecretvolume
+{{ end }}
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+{{ if .Values.Openshift.enabled }}   
+      volumes:
+      - name: tlssecretvolume
+        secret:
+          defaultMode: 420
+          secretName: testappservice
+{{ end }}

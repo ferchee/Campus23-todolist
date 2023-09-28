@@ -1,0 +1,22 @@
+{{- if .Values.Openshift.enabled }}
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  annotations:
+  name: webapp
+  namespace: {{ .Release.Namespace }}
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - name: latest
+      annotations:
+        openshift.io/imported-from: {{ .Values.image.testapp_artifactory_source }} 
+      from:
+        kind: DockerImage
+        name: {{ .Values.image.testapp_artifactory_source }}
+      importPolicy:
+        scheduled: true
+      referencePolicy:
+        type: Local
+{{- end }}

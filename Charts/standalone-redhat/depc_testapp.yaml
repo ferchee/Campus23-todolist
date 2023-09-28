@@ -1,0 +1,74 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    app: testapp
+  name: testapp
+  namespace: fnyerges-dev
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    app: testapp
+    deploymentconfig: testapp
+  strategy:
+    activeDeadlineSeconds: 21600
+    resources: {}
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: testapp
+        deploymentconfig: testapp
+    spec:
+      containers:
+      - env:
+        - name: CUSTOMURL
+          valueFrom:
+            configMapKeyRef:
+              key: CUSTOMURL
+              name: testappsettings
+        image: webapp:latest
+        imagePullPolicy: IfNotPresent
+        name: testapp
+        ports:
+        - containerPort: 5100
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 50m
+            memory: 500Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/crt
+          name: tlssecretvolume
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: tlssecretvolume
+        secret:
+          defaultMode: 420
+          secretName: testappservice
+  test: false
+  triggers:
+  - imageChangeParams:
+      automatic: true
+      containerNames:
+      - testapp
+      from:
+        kind: ImageStreamTag
+        name: webapp:latest
+        namespace: fnyerges-dev
+    type: ImageChange
+  - type: ConfigChange

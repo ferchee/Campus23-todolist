@@ -1,0 +1,8 @@
+apiVersion: v1
+data:
+  CUSTOMURL: https://testappservice.sonarqube-test.svc.cluster.local:5100
+kind: ConfigMap
+metadata:
+  name: testappsettings
+  namespace: sonarqube-test
+  

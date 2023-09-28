@@ -1,0 +1,35 @@
+PREP
+docker-compose review
+
+kubectl config use-context docker-desktop
+kubectl set-context --current --namespace=todoapp
+alias
+
+LOCAL INSTALL STATIC
+
+apply local stuff
+delete local stuff
+
+LOCAL CLEANUP
+k delete deployment postgresql &&k delete deployment testapp &&k delete configmap testappsettings && k
+delete configmap backendinit && k delete service db && k delete service testappservice &&k delete pvc postgresql &&k delete secret postgresql &&k delete secret backendinit
+
+
+OPENSHIFT context switch 
+kubectl config use-context sonarqube-test/api-ocp4int-eagledc-siemens-com:6443/Z003PWWE
+
+OSH INSTALL STATIC
+ka configmap_backendinit.yaml  && ka configmap_testappsettings.yaml && ka secret_postgresql.yaml &&ka secret_testappservice.yaml && ka pvc_postgresql.yaml && ka service_postgresql.yaml && ka service_testappservice.yaml && ka imagestream-webapp.yaml
+
+ka depc_postgresql.yaml &&ka depc_testapp.yaml
+
+oc rsh
+
+cd /usr/share/container-scripts/postgresql/postgres-init/ 
+
+OSH CLEANUP
+k delete deploymentconfig testapp && k delete deploymentconfig postgresql
+
+k delete secret postgresql && k delete secret testappservice &&k delete configmap backendinit && k delete configmap testappsettings && k delete pvc postgresql && k delete imagestream webapp &&k delete service db && k delete service testappservice
+
+HELM

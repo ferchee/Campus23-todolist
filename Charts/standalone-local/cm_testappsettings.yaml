@@ -1,0 +1,7 @@
+apiVersion: v1
+data:
+  CUSTOMURL: https://*:5100
+kind: ConfigMap
+metadata:
+  name: testappsettings
+  namespace: todoapp

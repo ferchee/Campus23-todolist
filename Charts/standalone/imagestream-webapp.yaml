@@ -1,0 +1,20 @@
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  annotations:
+  name: webapp
+  namespace: sonarqube-test
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - name: latest
+      annotations:
+              openshift.io/imported-from: captain.rtf.siemens.net:8443/sonarqube/webapp:latest
+      from:
+        kind: DockerImage
+        name: captain.rtf.siemens.net:8443/sonarqube/webapp:latest
+      importPolicy:
+        scheduled: true
+      referencePolicy:
+        type: Local

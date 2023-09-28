@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: testappservice
+  name: testappservice
+  namespace: todoapp
+spec:
+  ipFamilies:
+  - IPv4
+  ports:
+  - name: 5100-tcp
+    port: 5100
+    protocol: TCP
+    targetPort: 5100
+  selector:
+    app: testapp
+  sessionAffinity: None
+  type: ClusterIP

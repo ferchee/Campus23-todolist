@@ -1,0 +1,8 @@
+apiVersion: v1
+data:
+  CUSTOMURL: {{ .Values.serviceUrl.testappServiceUrl }}
+kind: ConfigMap
+metadata:
+  name: testappsettings
+  namespace: {{ .Release.Namespace }}
+  

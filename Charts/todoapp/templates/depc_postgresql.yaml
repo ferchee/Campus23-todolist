@@ -1,0 +1,134 @@
+{{ if .Values.Openshift.enabled }}       
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+{{ else }}
+apiVersion: apps/v1
+kind: Deployment
+{{ end }}
+metadata:
+  name: postgresql
+  namespace: {{ .Release.Namespace }}
+spec:
+{{ if .Values.Openshift.enabled }} 
+  triggers:
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - postgresql
+        from:
+          kind: ImageStreamTag
+          namespace: openshift
+          name: 'postgresql:10-el8'
+    - type: ConfigChange
+{{ end }}  
+
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+{{ if .Values.Openshift.enabled }}   
+    name: postgresql      
+{{ else }}
+    matchLabels:
+     app: postgresql
+{{ end }}     
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+{{ if .Values.Openshift.enabled }}   
+        name: postgresql
+{{ else }}
+        app: postgresql
+{{ end }}        
+    spec:
+      containers:
+      - env:
+{{ if .Values.Openshift.enabled }}       
+        - name: POSTGRESQL_USER
+          valueFrom:
+            secretKeyRef:
+              key: database-user
+              name: postgresql
+        - name: POSTGRESQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: database-password
+              name: postgresql
+        - name: POSTGRESQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              key: database-name
+              name: postgresql
+{{ else }}
+        - name: POSTGRES_USER
+          value: dbuser
+        - name: POSTGRES_PASSWORD
+          value: testpassword
+        - name: PGDATA
+          value: /data/pgdata
+{{ end }} 
+        image:  {{ .Values.image.postgresRepository }}
+        imagePullPolicy: IfNotPresent
+{{ if .Values.Openshift.enabled }}       
+        livenessProbe:
+          exec:
+            command:
+            - /usr/libexec/check-container
+            - --live
+          failureThreshold: 3
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 10
+{{ end }}          
+        name: postgresql
+        ports:
+        - containerPort: 5432
+          protocol: TCP
+{{ if .Values.Openshift.enabled }}       
+        readinessProbe:
+          exec:
+            command:
+            - /usr/libexec/check-container
+          failureThreshold: 3
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+{{end }}          
+        resources:
+          limits:
+            memory: 512Mi
+        securityContext:
+          capabilities: {}
+          privileged: false
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+{{ if .Values.Openshift.enabled }}       
+        - mountPath: /var/lib/pgsql/data
+{{ else }}
+        - mountPath: /data/pgdata
+{{ end }}        
+          name: postgresql-data          
+{{ if .Values.Openshift.enabled }}       
+        - mountPath: /usr/share/container-scripts/postgresql/postgres-init
+{{ else }}        
+        - mountPath: /docker-entrypoint-initdb.d
+{{ end }}
+          name: initscripts
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: postgresql-data
+        persistentVolumeClaim:
+          claimName: postgresql
+      - configMap:
+          defaultMode: 511
+          name: backendinit
+        name: initscripts

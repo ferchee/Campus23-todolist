@@ -1,0 +1,20 @@
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  annotations:
+  name: webapp
+  namespace: fnyerges-dev
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - name: latest
+      annotations:
+              openshift.io/imported-from: kissbence30/webapp:latest
+      from:
+        kind: DockerImage
+        name: kissbence30/webapp:latest
+      importPolicy:
+        scheduled: true
+      referencePolicy:
+        type: Local

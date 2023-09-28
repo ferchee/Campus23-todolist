@@ -1,0 +1,10 @@
+apiVersion: v1
+data:
+  database-name: ZG9ja2VyZGI=
+  database-password: ZG9ja2VycGFzc3dvcmQ=
+  database-user: ZG9ja2VydXNlcg==
+kind: Secret
+metadata:
+  name: postgresql
+  namespace: todoapp
+type: Opaque
